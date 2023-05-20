@@ -25,3 +25,6 @@ main:
         フォーマットした文字列をファイルストリームに書き込む。置換文字列を配列として受け取る。ダイサン引数に置換文字列を渡す。
         vはvectorのvか。
         [http://note.onichannn.net/archives/661](http://note.onichannn.net/archives/661)
+- memcomp:
+        nバイトメモリブロックの比較
+        [http://www9.plala.or.jp/sgwr-t/lib/memcmp.html](http://www9.plala.or.jp/sgwr-t/lib/memcmp.html)
