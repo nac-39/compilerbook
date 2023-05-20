@@ -20,10 +20,14 @@ assert() {
 assert 0 0
 assert 42 42
 assert 21 "5+20-4"
+# トークナイザー追加
 assert 41 " 12 + 34 - 5 "
 assert 10 "             5 + 5 - 0"
+# 優先度ありの四則演算
 assert 47 "5+6*7"
 assert 15 "5*(9-6)"
 assert 4 "(3+5)/2"
+# 単項プラス（unary）追加
+assert 10 "-10 + 20"
 
 echo OK
