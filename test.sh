@@ -3,9 +3,9 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./bin/9cc "$input" > tmp.s
-  cc -o tmp tmp.s
-  ./tmp
+  ./bin/9cc "$input" > ./assembly/tmp.s
+  cc -o ./bin/tmp ./assembly/tmp.s
+  ./bin/tmp
   actual="$?"
 
   if [ "$actual" = "$expected" ]; then
@@ -18,5 +18,6 @@ assert() {
 
 assert 0 0
 assert 42 42
+assert 21 "5+20-4"
 
 echo OK

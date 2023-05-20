@@ -9,3 +9,6 @@ main:
         mov rax, 42
         ret
 ```
+
+## C言語
+- strtol: [https://marycore.jp/prog/c-lang/stdlib-strtol/](https://marycore.jp/prog/c-lang/stdlib-strtol/)
