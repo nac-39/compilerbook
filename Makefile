@@ -1,7 +1,11 @@
 CFLAGS=-std=c11 -g -static
+SRCS=$(wildcard ./src/*.c)
+OBJS=$(SRCS:.c=.o)
 
-9cc: ./src/9cc.c
-		cc -o ./bin/9cc ./src/9cc.c $(CFLAGS)
+9cc: $(OBJS)
+		$(CC) -o ./bin/9cc $(OBJS) $(LDFLAGS)
+
+$(OBJS): ./src/9cc.h
 
 test: ./bin/9cc
 		./test.sh
