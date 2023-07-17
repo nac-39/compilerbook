@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  compilerbook:
+    build: https://www.sigbus.info/compilerbook/Dockerfile
+    volumes:
+      - .:/9cc
+    working_dir: /9cc
+    tty: true
+    platform: linux/amd64
