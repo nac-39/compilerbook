@@ -58,3 +58,4 @@ bin/
 tmp*
 a.out
 9cc
+log/*
