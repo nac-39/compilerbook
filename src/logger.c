@@ -9,6 +9,7 @@
 FILE *log_file;
 
 void logger(char *fmt, ...) {
+  // 可変長引数を扱うため
   va_list ap;
   va_start(ap, fmt);
 
@@ -25,8 +26,9 @@ void logger(char *fmt, ...) {
     exit(EXIT_FAILURE);
   }
 
-  // 文字列結合
-  fprintf(log_file, strcat(str, fmt));
+  // 文字列結合とフォーマット
+  vfprintf(log_file, strcat(str, fmt), ap);
+  fprintf(log_file, "\n");
   fclose(log_file);
   return;
 }
