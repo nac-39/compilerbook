@@ -12,9 +12,12 @@ bool consume(char *op) {
 
 // ローカル変数を呼んでトークンを一つ進める
 Token *consume_ident() {
+  LOGGER("consume_ident(): kind=%s, str=%s, len=%d, strlen=%d",
+         get_token_name(token->kind), token->str, token->len,
+         strlen(token->str));
   Token *old_token = token;
-  if (token->kind != TK_IDENT || strlen(token->str) != token->len ||
-      *token->str < '0' || (*token->str > 9 && *token->str < 'a') ||
+  if (token->kind != TK_IDENT || *token->str < '0' ||
+      (*token->str > 9 && *token->str < 'a') ||
       *token->str > 'z')  // 数字と文字以外のasciiコードを排除
     return NULL;
   token = token->next;
@@ -33,7 +36,8 @@ void expect(char *op) {
 // 次のトークンが数値の場合、トークンを一つ読み進めてその数値を返す。
 // それ以外の場合にはエラーを報告する。
 int expect_number() {
-  LOGGER("expect_number: num=%d", token->val);
+  LOGGER("expect_number: num=%d, kind=%s", token->val,
+         get_token_name(token->kind));
   if (token->kind != TK_NUM) error_at(token->str, "数ではありません");
   int val = token->val;
   token = token->next;
@@ -86,7 +90,7 @@ Token *tokenize() {
     }
 
     // 記号(一つ進める)
-    if (strchr("+-*/()<>;", *p)) {
+    if (strchr("+-*/()<>;=", *p)) {
       // strchr:
       // 検索対象が見つかればその場所のアドレスを、見つからなければNULLを返す
       LOGGER("tokenizing reserved(%s): ", p);
@@ -254,6 +258,7 @@ Node *primary() {
   LOGGER("primary()");
   Token *tok = consume_ident();
   if (tok) {
+    LOGGER("ident exists");
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
     node->offset = (tok->str[0] - 'a' + 1) * 8;
