@@ -2,6 +2,7 @@
     "files.associations": {
         "*.ejs": "html",
         "*.js": "javascript",
-        "9cc.h": "c"
+        "9cc.h": "c",
+        "ctype.h": "c"
     }
 }

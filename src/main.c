@@ -30,6 +30,13 @@ void error_at(char *loc, char *fmt, ...) {
   exit(1);
 }
 
+void node_print(Node node) {
+  node_print(*node.lhs);
+  LOGGER("node: kind=%s, offset=%d, val=%d", get_node_name(node.kind),
+         node.offset, node.val);
+  node_print(*node.rhs);
+}
+
 int main(int argc, char **argv) {
   LOGGER("start!!");
   if (argc != 2) {
@@ -38,7 +45,16 @@ int main(int argc, char **argv) {
   }
 
   user_input = argv[1];
+  LOGGER("start tokenizing...");
   token = tokenize();
+  Token *tmp_token = token;
+  while (tmp_token) {
+    LOGGER("token: kind=%s, str=%s, len=%d, val=%d",
+           get_token_name(tmp_token->kind), tmp_token->str, tmp_token->len,
+           tmp_token->val);
+    tmp_token = tmp_token->next;
+  }
+  LOGGER("end tokenizing...");
   program();
   // アセンブリの前半部分を出力
   printf(".intel_syntax noprefix\n");
@@ -53,6 +69,7 @@ int main(int argc, char **argv) {
 
   // 先頭の式から順にコード生成
   for (int i = 0; code[i]; i++) {
+    LOGGER("code[%d]: %d", i, code[i]->val);
     gen(code[i]);
     // 式の評価結果としてスタックに一つの値が残っているはずなので、
     // スタックが溢れないようにポップしておく
@@ -63,7 +80,7 @@ int main(int argc, char **argv) {
   // スタックトップに敷き全体の値が残っていはずなので、
   // それをRAXにロードして関数からの返り血とする
   printf("  mov rsp, rbp\n");
-  printf("  pop rax\n");
+  printf("  pop rbp\n");
   printf("  ret\n");
   LOGGER("end!!");
   return 0;

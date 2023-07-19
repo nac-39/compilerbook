@@ -33,3 +33,17 @@ void logger(char *fmt, ...) {
   return;
 }
 #endif
+
+char *get_token_name(TokenKind kind) {
+  char *token_names[4] = {"TK_RESERVED", "TK_IDENT", "TK_NUM", "TK_EOF"};
+  return token_names[kind];
+}
+
+char *get_node_name(NodeKind kind) {
+  const char *node_names[11] = {
+      "ND_ADD", "ND_SUB", "ND_MUL", "ND_DIV",    "ND_EQ",   "ND_NE",
+      "ND_LT",  "ND_LE",  "ND_NUM", "ND_ASSIGN", "ND_LVAR",
+  };
+  return node_names[kind];
+}
+

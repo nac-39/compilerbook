@@ -16,7 +16,7 @@
 
 #ifdef _DEBUG
 // ログ用関数
-void logger(char log_txt[256], ...);
+void logger(char fmt[256], ...);
 #endif
 
 // トークンの種類
@@ -52,6 +52,10 @@ typedef enum {
   ND_ASSIGN,  // =
   ND_LVAR,    // ローカル変数
 } NodeKind;
+
+// enumの名前を取得する関数
+char *get_token_name(TokenKind kind);
+char *get_node_name(NodeKind kind);
 
 typedef struct Node Node;
 

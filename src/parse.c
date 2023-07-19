@@ -18,7 +18,7 @@ Token *consume_ident() {
       *token->str > 'z')  // 数字と文字以外のasciiコードを排除
     return NULL;
   token = token->next;
-  return new_token(TK_IDENT, old_token, old_token->str, old_token->len);
+  return old_token;
 }
 
 // 次のトークンが期待している記号の時には、トークンを一つ読み進める。
@@ -33,6 +33,7 @@ void expect(char *op) {
 // 次のトークンが数値の場合、トークンを一つ読み進めてその数値を返す。
 // それ以外の場合にはエラーを報告する。
 int expect_number() {
+  LOGGER("expect_number: num=%d", token->val);
   if (token->kind != TK_NUM) error_at(token->str, "数ではありません");
   int val = token->val;
   token = token->next;
@@ -46,10 +47,14 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
   Token *tok = calloc(1, sizeof(Token));
   // 1つのTokenサイズのメモリを確保。*tokはそのメモリのアドレスを指す。
   // callocはallocとは違い、全てのメモリを０クリアする。
+  // ので、初期状態ではtok->next==NULL?
+  LOGGER("new_token: kind = %s", get_token_name(kind));
   tok->kind = kind;
   tok->str = str;
   tok->len = len;
   cur->next = tok;
+  LOGGER("new_token: kind=%s, str=%s, len=%d, val=%d",
+         get_token_name(tok->kind), tok->str, tok->len, tok->val);
   return tok;
 }
 
@@ -63,38 +68,49 @@ Token *tokenize() {
   Token *cur = &head;
 
   while (*p) {
+    LOGGER("tokenizing: %s", p);
+
     // 空白文字をスキップ
     if (isspace(*p)) {
       p++;
       continue;
     }
 
-    // 記号
+    // 記号(二個進める)
     if (startswith(p, "==") || startswith(p, "!=") || startswith(p, "<=") ||
         startswith(p, ">=")) {
+      LOGGER("tokenizing reserved2(%s): ", p);
       cur = new_token(TK_RESERVED, cur, p, 2);
       p += 2;
       continue;
     }
 
+    // 記号(一つ進める)
     if (strchr("+-*/()<>;", *p)) {
-      cur = new_token(TK_RESERVED, cur, p++, 1);
+      // strchr:
+      // 検索対象が見つかればその場所のアドレスを、見つからなければNULLを返す
+      LOGGER("tokenizing reserved(%s): ", p);
+      cur = new_token(TK_RESERVED, cur, p, 1);
+      p++;
       continue;
     }
 
     if ('a' <= *p && *p <= 'z') {
+      LOGGER("tokenizing ident(%s): ", p);
       cur = new_token(TK_IDENT, cur, p++, 1);
       cur->len = 1;
       continue;
     }
 
     if (isdigit(*p)) {
+      LOGGER("tokenizing number(%s): ", p);
       cur = new_token(TK_NUM, cur, p, 0);
       char *q = p;
-      cur->val = strtol(p, &p, 10);
+      cur->val = strtol(p, &p, 10);  // str to long
       cur->len = p - q;
       continue;
     }
+
     error_at(p, "トークナイズできません。");
   }
 
@@ -135,11 +151,13 @@ Node *new_num(int val) {
 // unary      = ("+" | "-")? primary
 // primary    = num | ident | "(" expr ")"
 
-
 // program    = stmt*
 void program() {
   int i = 0;
-  while (!at_eof()) code[i++] = stmt();
+  while (!at_eof()) {
+    code[i++] = stmt();
+    LOGGER("program(): node=%s", get_node_name(code[i - 1]->kind));
+  }
   code[i] = NULL;
 }
 
@@ -151,15 +169,13 @@ Node *stmt() {
 }
 
 // expr       = assign
-Node *expr() {
-  Node *node = assign();
-  return node;
-}
+Node *expr() { return assign(); }
 
 // assign     = equality ("=" assign)?
 Node *assign() {
   Node *node = equality();
   if (consume("=")) node = new_binary(ND_ASSIGN, node, assign());
+  return node;
 }
 
 // equality = relational ("==" relational | "!=" relational)*
@@ -235,12 +251,12 @@ Node *primary() {
   }
 
   // ローカル変数があれば読む
+  LOGGER("primary()");
   Token *tok = consume_ident();
   if (tok) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
     node->offset = (tok->str[0] - 'a' + 1) * 8;
-    error("consume_ident!!");
     return node;
   }
   // そうでなければ数値のはず;
