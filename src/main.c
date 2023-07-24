@@ -2,13 +2,14 @@
 
 // グローバル変数
 char *user_input;
-Token *token;  // 現在注目しているトークン
+Token *token; // 現在注目しているトークン
 Node *code[100];
+LVar *locals; // ローカル変数
 
 // エラーを報告するための関数
 // printfと同じ引数を取る
 void error(char *fmt, ...) {
-  va_list ap;  // ただのchar型のポインタ
+  va_list ap; // ただのchar型のポインタ
   // 　可変超引数を一つの変数にまとめる
   va_start(ap, fmt);
   // まとめられた変数で処理する
@@ -23,7 +24,7 @@ void error_at(char *loc, char *fmt, ...) {
 
   int pos = loc - user_input;
   fprintf(stderr, "%s\n", user_input);
-  fprintf(stderr, "%*s", pos, "");  // posこの空白を出力
+  fprintf(stderr, "%*s", pos, ""); // posこの空白を出力
   fprintf(stderr, "^ ");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
@@ -48,6 +49,9 @@ int main(int argc, char **argv) {
   LOGGER("start tokenizing...");
   token = tokenize();
   Token *tmp_token = token;
+  // local変数を入れる領域の最初を作っておく
+  locals = calloc(1, sizeof(LVar));
+
   while (tmp_token) {
     LOGGER("token: kind=%s, str=%s, len=%d, val=%d",
            get_token_name(tmp_token->kind), tmp_token->str, tmp_token->len,

@@ -8,6 +8,14 @@ void gen_lval(Node *node) {
 }
 
 void gen(Node *node) {
+    if(node->kind == ND_RETURN) {
+        gen(node->lhs);
+        printf("  pop rax\n");
+        printf("  mov rsp, rbp\n");
+        printf("  pop rbp\n");
+        printf("  ret\n");
+        return;
+    }
   // 終端記号
   switch (node->kind) {
     case ND_LVAR:
