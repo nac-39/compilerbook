@@ -100,6 +100,7 @@ bool startswith(char *p, char *q) { return memcmp(p, q, strlen(q)) == 0; }
 
 int is_alnum(char c) {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
+  LOGGER("is_alnum(): %s", &c);
   return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') ||
          ('0' <= c && c <= '9') || (c == '_');
 }
@@ -148,8 +149,14 @@ Token *tokenize() {
 
     if ('a' <= *p && *p <= 'z') {
       LOGGER("tokenizing ident(%s): ", p);
-      cur = new_token(TK_IDENT, cur, p++, 1);
-      cur->len = 1;
+      char *old_p = p;
+      int char_len = 0;
+      while(is_alnum(*p)){
+          p++;
+          char_len++;
+      }
+      cur = new_token(TK_IDENT, cur, old_p, char_len);
+      cur->len = char_len;
       continue;
     }
 
