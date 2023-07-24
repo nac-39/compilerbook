@@ -9,6 +9,8 @@
 #define _DEBUG
 
 #ifdef _DEBUG
+// printfと同じ書き方で書けるlogger.
+// `LOG_FILE`に吐き出されるよ
 #define LOGGER(fmt, ...) logger(fmt, ##__VA_ARGS__)
 #else
 #define LOGGER(s) /* do nothing */
@@ -21,37 +23,49 @@ void logger(char fmt[256], ...);
 
 // トークンの種類
 typedef enum {
-  TK_RESERVED,  // 記号
-  TK_IDENT,     // 識別子
-  TK_NUM,       // 整数トークン
-  TK_EOF,       // 入力の終わりを表すトークン
+  TK_RESERVED, // 記号
+  TK_IDENT,    // 識別子
+  TK_NUM,      // 整数トークン
+  TK_EOF,      // 入力の終わりを表すトークン
+  TK_RETURN,   // return
 } TokenKind;
 
 typedef struct Token Token;
 
 // トークン型
 struct Token {
-  TokenKind kind;  // トークンの型
-  Token *next;     // 次の入力トークン
-  int val;         // kindがTK_NUMの場合、その数値
-  char *str;       // トークン文字列
-  int len;         // トークンの長さ
+  TokenKind kind; // トークンの型
+  Token *next;    // 次の入力トークン
+  int val;        // kindがTK_NUMの場合、その数値
+  char *str;      // トークン文字列
+  int len;        // トークンの長さ
 };
 
 // 抽象構文木のノードの種類
 typedef enum {
-  ND_ADD,     // +
-  ND_SUB,     // -
-  ND_MUL,     // *
-  ND_DIV,     // /
-  ND_EQ,      // ==
-  ND_NE,      // !=
-  ND_LT,      // <
-  ND_LE,      // <=
-  ND_NUM,     // 整数
-  ND_ASSIGN,  // =
-  ND_LVAR,    // ローカル変数
+  ND_ADD,    // +
+  ND_SUB,    // -
+  ND_MUL,    // *
+  ND_DIV,    // /
+  ND_EQ,     // ==
+  ND_NE,     // !=
+  ND_LT,     // <
+  ND_LE,     // <=
+  ND_NUM,    // 整数
+  ND_ASSIGN, // =
+  ND_LVAR,   // ローカル変数
+  ND_RETURN, // return
 } NodeKind;
+
+typedef struct LVar LVar;
+
+// ローカル変数の型
+struct LVar {
+  LVar *next; // 次の変数かNULL
+  char *name; // 変数の名前
+  int len;    // 名前の長さ
+  int offset; // RBPからのオフセット
+};
 
 // enumの名前を取得する関数
 char *get_token_name(TokenKind kind);
@@ -61,11 +75,11 @@ typedef struct Node Node;
 
 // 抽象構文木のノードの型
 struct Node {
-  NodeKind kind;  // ノードの方
-  Node *lhs;      // 左辺
-  Node *rhs;      // 右辺
-  int val;        // kindがND_NUMの場合のみ使う
-  int offset;  // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す。
+  NodeKind kind; // ノードの方
+  Node *lhs;     // 左辺
+  Node *rhs;     // 右辺
+  int val;       // kindがND_NUMの場合のみ使う
+  int offset; // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す。
 };
 
 void error(char *fmt, ...);
@@ -103,4 +117,8 @@ extern Token *token;
 // プログラムを格納する配列
 extern Node *code[100];
 
+// ログファイルへのポインタ
 extern FILE *log_file;
+
+// ローカル変数
+extern LVar *locals;

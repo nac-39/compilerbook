@@ -50,9 +50,16 @@ assert 1 '1>=1;'
 assert 0 '1>=2;'
 
 # ローカル変数（一文字)の導入
-assert 1 'a=1;a;'
-assert 3 'a=1;b=2;a+b;'
-assert 0 'a=1;b=0;a*b;'
-assert 4 'a=1;b=0;(a+a)*(a+a)+b;'
-assert 1 'a=1;b=0;a>b;'
+assert 1 'a=1; return a;'
+assert 1 'a=1; a;'
+assert 3 'a=1;b=2;return a+b;'
+assert 4 'a=1;b=0; return (a+a)*(a+a)+b;'
+assert 1 'a=1;b=0; return a>b;'
+
+# ローカル変数（複数文字）の導入
+# assert 2 'apple=1; return apple;'
+# assert 1 'apple=1; apple;'
+# assert 3 'apple=1;banana=2;return apple+banana;'
+# assert 0 'apple=1;banana=0; return (apple+apple)*banana;'
+# assert 1 'apple=1;banana=0; return apple>banana;'
 echo OK
