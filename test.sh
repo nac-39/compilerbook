@@ -63,4 +63,9 @@ assert 1 'apple=1; apple;'
 assert 3 'apple=1;banana=2;return apple+banana;'
 assert 0 'apple=1;banana=0; return (apple+apple)*banana;'
 assert 1 'apple=1;banana=0; return apple>banana;'
+
+# if文の追加
+assert 1 'if(1) return 1;'
+# assert 2 'if(1<2) return 3;'
+assert 2 'if(1>2) return 3;return 2;'
 echo OK

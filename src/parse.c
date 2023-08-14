@@ -16,7 +16,8 @@ bool consume(char *op) {
 // 　真を返す。それ以外の場合には偽を返す。
 bool consume_token(TokenKind kind) {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
-  if (token->kind != kind) return false;
+  if (token->kind != kind)
+    return false;
   token = token->next;
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
   return true;
@@ -128,6 +129,18 @@ Token *tokenize() {
       continue;
     }
 
+    if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
+      cur = new_token(TK_IF, cur, p, 2);
+      p += 2;
+      continue;
+    }
+
+    if (strncmp(p, "else", 4) == 0 && !is_alnum(p[4])) {
+      cur = new_token(TK_ELSE, cur, p, 4);
+      p += 4;
+      continue;
+    }
+
     // 記号(二個進める)
     if (startswith(p, "==") || startswith(p, "!=") || startswith(p, "<=") ||
         startswith(p, ">=")) {
@@ -151,9 +164,9 @@ Token *tokenize() {
       LOGGER("tokenizing ident(%s): ", p);
       char *old_p = p;
       int char_len = 0;
-      while(is_alnum(*p)){
-          p++;
-          char_len++;
+      while (is_alnum(*p)) {
+        p++;
+        char_len++;
       }
       cur = new_token(TK_IDENT, cur, old_p, char_len);
       cur->len = char_len;
@@ -207,6 +220,9 @@ Node *new_num(int val) {
 // 文法一覧
 // program    = stmt*
 // stmt       = expr "; | "return" expr ";"
+//            | "if" "(" expr ")" stmt ("else" stmt)?
+//            | "while" "(" expr ")" stmt
+//            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 // expr       = assign
 // assign     = equality ("=" assign)?
 // equality   = relational ("==" relational | "!=" relational)*
@@ -228,7 +244,10 @@ void program() {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
 }
 
-// stmt       = expr ";"
+// stmt       = expr "; | "return" expr ";"
+//            | "if" "(" expr ")" stmt ("else" stmt)?
+//            | "while" "(" expr ")" stmt
+//            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 Node *stmt() {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
   Node *node;
@@ -236,10 +255,17 @@ Node *stmt() {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
     node->lhs = expr();
+    expect(";");
+  } else if (consume_token(TK_IF)) {
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_IF;
+    node->lhs = expr();
+    node->rhs = stmt();
   } else {
     node = expr();
+    expect(";");
   }
-  expect(";");
+
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
   return node;
 }
