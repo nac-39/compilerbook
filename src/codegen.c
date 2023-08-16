@@ -24,8 +24,16 @@ void gen(Node *node) {
     gen(node->lhs);
     printf("  pop rax\n"); // スタックトップに結果が入っているはず
     printf("  cmp rax, 0\n");
-    printf("  je .Lend1\n");
+    if (node->els) {
+      printf("  je .Lelse1\n");
+    } else {
+      printf("  je .Lend1\n");
+    }
     gen(node->rhs);
+    if (node->els) {
+      printf("  .Lelse1:\n");
+      gen(node->els);
+    }
     printf(".Lend1:\n");
     return;
   }

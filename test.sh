@@ -53,7 +53,7 @@ assert 0 '1>=2;'
 assert 1 'a=1; return a;'
 assert 100 'a=100; return a;'
 assert 1 'a=1; a;'
-assert 3 'a=1;b=2;return a+b;'
+assert 3 'a=1;b=2;return a + b;'
 assert 4 'a=1;b=0; return (a+a)*(a+a)+b;'
 assert 1 'a=1;b=0; return a>b;'
 
@@ -66,6 +66,8 @@ assert 1 'apple=1;banana=0; return apple>banana;'
 
 # if文の追加
 assert 1 'if(1) return 1;'
-# assert 2 'if(1<2) return 3;'
+assert 3 'if(1<2) return 3;'
 assert 2 'if(1>2) return 3;return 2;'
+assert 222 'if(1>3) return 111; else return 222;'
+assert 1 'if(1>2) a = 1 ; return 3; else a = 2 ; b = 1; return a - b;'
 echo OK

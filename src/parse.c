@@ -81,8 +81,8 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
   tok->str = str;
   tok->len = len;
   cur->next = tok;
-  LOGGER("new_token: kind=%s, str=%s, len=%d, val=%d",
-         get_token_name(tok->kind), tok->str, tok->len, tok->val);
+  LOGGER("new_token: kind=%s, str=%.*s, len=%d, val=%d",
+         get_token_name(tok->kind), tok->len, tok->str, tok->len, tok->val);
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
   return tok;
 }
@@ -250,6 +250,7 @@ void program() {
 //            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 Node *stmt() {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
+  LOGGER("Now tokenizing... %s", get_token_name(token->kind));
   Node *node;
   if (consume_token(TK_RETURN)) {
     node = calloc(1, sizeof(Node));
@@ -261,6 +262,11 @@ Node *stmt() {
     node->kind = ND_IF;
     node->lhs = expr();
     node->rhs = stmt();
+    if (consume_token(TK_ELSE)) {
+      LOGGER("consumed: else");
+      node->els = stmt();
+    }
+
   } else {
     node = expr();
     expect(";");
