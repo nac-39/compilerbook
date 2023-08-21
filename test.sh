@@ -69,5 +69,5 @@ assert 1 'if(1) return 1;'
 assert 3 'if(1<2) return 3;'
 assert 2 'if(1>2) return 3;return 2;'
 assert 222 'if(1>3) return 111; else return 222;'
-assert 1 'if(1>2) a = 1 ; return 3; else a = 2 ; b = 1; return a - b;'
+assert 1 'if(1>2) a = 1 ; else a = 2 ; b = 1; return a - b;'
 echo OK

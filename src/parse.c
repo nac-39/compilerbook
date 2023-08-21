@@ -16,6 +16,8 @@ bool consume(char *op) {
 // 　真を返す。それ以外の場合には偽を返す。
 bool consume_token(TokenKind kind) {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
+  LOGGER("actually: %s, expected: %s", get_token_name(token->kind),
+         get_token_name(kind));
   if (token->kind != kind)
     return false;
   token = token->next;
@@ -261,18 +263,24 @@ Node *stmt() {
     node = calloc(1, sizeof(Node));
     node->kind = ND_IF;
     node->lhs = expr();
+    LOGGER("before node->lhs");
     node->rhs = stmt();
+    LOGGER("consumed TK_IF");
     if (consume_token(TK_ELSE)) {
-      LOGGER("consumed: else");
+      LOGGER("after consume_token(TK_ELSE)");
+      LOGGER("consuming: %s", get_token_name(token->kind));
+      LOGGER("remaining tokens: %s", token->str);
       node->els = stmt();
+    } else {
+      node->els = NULL;
     }
-
   } else {
     node = expr();
     expect(";");
   }
 
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
+  LOGGER("next token is... %s", get_token_name(token->kind));
   return node;
 }
 
@@ -370,7 +378,7 @@ Node *primary() {
     return node;
   }
 
-  // ローカル変数があれば読む
+  // ローカル変# 数があれば読む
   Token *tok = consume_ident();
   if (tok) {
     Node *node = calloc(1, sizeof(Node));

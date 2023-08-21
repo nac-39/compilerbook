@@ -58,6 +58,7 @@ typedef enum {
   ND_LVAR,   // ローカル変数
   ND_IF,     // if
   ND_RETURN, // return
+  ND_ELSE,   // else
 } NodeKind;
 
 typedef struct LVar LVar;
