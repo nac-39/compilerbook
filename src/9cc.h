@@ -28,6 +28,8 @@ typedef enum {
   TK_NUM,      // 整数トークン
   TK_EOF,      // 入力の終わりを表すトークン
   TK_RETURN,   // return
+  TK_IF,       // if
+  TK_ELSE,     // else
 } TokenKind;
 
 typedef struct Token Token;
@@ -54,7 +56,9 @@ typedef enum {
   ND_NUM,    // 整数
   ND_ASSIGN, // =
   ND_LVAR,   // ローカル変数
+  ND_IF,     // if
   ND_RETURN, // return
+  ND_ELSE,   // else
 } NodeKind;
 
 typedef struct LVar LVar;
@@ -78,6 +82,7 @@ struct Node {
   NodeKind kind; // ノードの方
   Node *lhs;     // 左辺
   Node *rhs;     // 右辺
+  Node *els;    // else節にのみ使う
   int val;       // kindがND_NUMの場合のみ使う
   int offset; // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す。
 };
@@ -122,3 +127,6 @@ extern FILE *log_file;
 
 // ローカル変数
 extern LVar *locals;
+
+// if文のインデックス
+extern int if_index;
