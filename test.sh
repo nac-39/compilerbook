@@ -74,4 +74,8 @@ assert 111 'if(1<3) return 111; else return 222;'
 assert 222 'a=0;b=1; if(a<b) return 222; return 111;'
 assert 3 'if(1) a = 1; if (1) b=2; return a + b;'
 assert 1 'if(0) a=2; else a = 1; if(1) b = 0; return a + b;'
+
+# while文の追加
+assert 2 'while(0) return 0; return 2;'
+assert 3 'i = 0; while(i<3) i = i + 1; return i;'
 echo OK

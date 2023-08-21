@@ -25,8 +25,7 @@ void gen(Node *node) {
     printf("  pop rax\n"); // スタックトップに結果が入っているはず
     printf("  cmp rax, 0\n");
     char buf[24];
-    snprintf(buf, 24, "%d", if_index++);
-    LOGGER("buf: %s", buf);
+    snprintf(buf, 24, "%d", label_index++);
     if (node->els) {
       printf("  je .Lelse%s\n", buf);
     } else {
@@ -37,6 +36,19 @@ void gen(Node *node) {
       printf("  .Lelse%s:\n", buf);
       gen(node->els);
     }
+    printf(".Lend%s:\n", buf);
+    return;
+  }
+  if (node->kind == ND_WHILE) {
+    char buf[24];
+    snprintf(buf, 24, "%d", label_index++);
+    printf(".Lbegin%s:\n", buf);
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lend%s\n", buf);
+    gen(node->rhs);
+    printf("  jmp .Lbegin%s\n", buf);
     printf(".Lend%s:\n", buf);
     return;
   }
