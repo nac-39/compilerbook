@@ -127,3 +127,6 @@ extern FILE *log_file;
 
 // ローカル変数
 extern LVar *locals;
+
+// if文のインデックス
+extern int if_index;

@@ -24,17 +24,20 @@ void gen(Node *node) {
     gen(node->lhs);
     printf("  pop rax\n"); // スタックトップに結果が入っているはず
     printf("  cmp rax, 0\n");
+    char buf[24];
+    snprintf(buf, 24, "%d", if_index++);
+    LOGGER("buf: %s", buf);
     if (node->els) {
-      printf("  je .Lelse1\n");
+      printf("  je .Lelse%s\n", buf);
     } else {
-      printf("  je .Lend1\n");
+      printf("  je .Lend%s\n", buf);
     }
     gen(node->rhs);
     if (node->els) {
-      printf("  .Lelse1:\n");
+      printf("  .Lelse%s:\n", buf);
       gen(node->els);
     }
-    printf(".Lend1:\n");
+    printf(".Lend%s:\n", buf);
     return;
   }
   // 終端記号

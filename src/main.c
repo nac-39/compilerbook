@@ -5,6 +5,7 @@ char *user_input;
 Token *token; // 現在注目しているトークン
 Node *code[100];
 LVar *locals; // ローカル変数
+int if_index; // if文のインデックス
 
 // エラーを報告するための関数
 // printfと同じ引数を取る
@@ -46,6 +47,7 @@ int main(int argc, char **argv) {
   }
 
   user_input = argv[1];
+  if_index = 0;
   LOGGER("start tokenizing...");
   token = tokenize();
   Token *tmp_token = token;
