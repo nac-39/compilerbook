@@ -266,8 +266,8 @@ Node *stmt() {
     expect(";");
   } else if (consume_token(TK_IF)) {
     node = new_node(ND_IF);
-    node->lhs = expr();
-    node->rhs = stmt();
+    node->cond = expr();
+    node->stmt = stmt();
     if (consume_token(TK_ELSE)) {
       node->els = stmt();
     } else {
@@ -275,8 +275,8 @@ Node *stmt() {
     }
   } else if (consume_token(TK_WHILE)) {
     node = new_node(ND_WHILE);
-    node->lhs = expr();
-    node->rhs = stmt();
+    node->cond = expr();
+    node->stmt = stmt();
   } else {
     node = expr();
     expect(";");
