@@ -149,6 +149,12 @@ Token *tokenize() {
       continue;
     }
 
+    if (strncmp(p, "for", 3) == 0 && !is_alnum(p[3])) {
+      cur = new_token(TK_FOR, cur, p, 3);
+      p += 3;
+      continue;
+    }
+
     // 記号(二個進める)
     if (startswith(p, "==") || startswith(p, "!=") || startswith(p, "<=") ||
         startswith(p, ">=")) {
@@ -276,6 +282,22 @@ Node *stmt() {
   } else if (consume_token(TK_WHILE)) {
     node = new_node(ND_WHILE);
     node->cond = expr();
+    node->stmt = stmt();
+  } else if (consume_token(TK_FOR)) {
+    node = new_node(ND_FOR);
+    consume("(");
+    if (!consume(";")) {
+      node->init = expr();
+      expect(";");
+    }
+    if (!consume(";")) {
+      node->cond = expr();
+      expect(";");
+    }
+    if (!consume(")")) {
+      node->inc = expr();
+      expect(")");
+    }
     node->stmt = stmt();
   } else {
     node = expr();

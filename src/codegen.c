@@ -52,6 +52,26 @@ void gen(Node *node) {
     printf(".Lend%s:\n", buf);
     return;
   }
+  if (node->kind == ND_FOR) {
+    char buf[24];
+    snprintf(buf, 24, "%d", label_index++);
+    if (node->init) {
+      gen(node->init);
+    }
+    printf(".Lbegin%s:\n", buf);
+    if (node->cond) {
+      gen(node->cond);
+    }
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lend%s\n", buf);
+    gen(node->stmt);
+    if (node->inc) {
+      gen(node->inc);
+    }
+    printf("  jmp .Lbegin%s\n", buf);
+    printf(".Lend%s:\n", buf);
+  }
   // 終端記号
   switch (node->kind) {
   case ND_LVAR:
@@ -72,9 +92,12 @@ void gen(Node *node) {
     printf("  push %d\n", node->val);
     return;
   }
-
-  gen(node->lhs);
-  gen(node->rhs);
+  if (node->lhs) {
+    gen(node->lhs);
+  }
+  if (node->rhs) {
+    gen(node->rhs);
+  }
 
   printf("  pop rdi\n");
   printf("  pop rax\n");
