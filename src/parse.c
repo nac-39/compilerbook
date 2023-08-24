@@ -143,6 +143,18 @@ Token *tokenize() {
       continue;
     }
 
+    if (strncmp(p, "while", 5) == 0 && !is_alnum(p[5])) {
+      cur = new_token(TK_WHILE, cur, p, 5);
+      p += 5;
+      continue;
+    }
+
+    if (strncmp(p, "for", 3) == 0 && !is_alnum(p[3])) {
+      cur = new_token(TK_FOR, cur, p, 3);
+      p += 3;
+      continue;
+    }
+
     // 記号(二個進める)
     if (startswith(p, "==") || startswith(p, "!=") || startswith(p, "<=") ||
         startswith(p, ">=")) {
@@ -255,25 +267,38 @@ Node *stmt() {
   LOGGER("Now tokenizing... %s", get_token_name(token->kind));
   Node *node;
   if (consume_token(TK_RETURN)) {
-    node = calloc(1, sizeof(Node));
-    node->kind = ND_RETURN;
+    node = new_node(ND_RETURN);
     node->lhs = expr();
     expect(";");
   } else if (consume_token(TK_IF)) {
-    node = calloc(1, sizeof(Node));
-    node->kind = ND_IF;
-    node->lhs = expr();
-    LOGGER("before node->lhs");
-    node->rhs = stmt();
-    LOGGER("consumed TK_IF");
+    node = new_node(ND_IF);
+    node->cond = expr();
+    node->stmt = stmt();
     if (consume_token(TK_ELSE)) {
-      LOGGER("after consume_token(TK_ELSE)");
-      LOGGER("consuming: %s", get_token_name(token->kind));
-      LOGGER("remaining tokens: %s", token->str);
       node->els = stmt();
     } else {
       node->els = NULL;
     }
+  } else if (consume_token(TK_WHILE)) {
+    node = new_node(ND_WHILE);
+    node->cond = expr();
+    node->stmt = stmt();
+  } else if (consume_token(TK_FOR)) {
+    node = new_node(ND_FOR);
+    consume("(");
+    if (!consume(";")) {
+      node->init = expr();
+      expect(";");
+    }
+    if (!consume(";")) {
+      node->cond = expr();
+      expect(";");
+    }
+    if (!consume(")")) {
+      node->inc = expr();
+      expect(")");
+    }
+    node->stmt = stmt();
   } else {
     node = expr();
     expect(";");

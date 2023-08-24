@@ -12,5 +12,6 @@ test: ./bin/9cc
 
 clean:
 		rm -f ./bin/9cc *.o *~ tmp*
+		echo "" > log/log.txt
 
 .PHONY: test clean

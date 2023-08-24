@@ -21,24 +21,56 @@ void gen(Node *node) {
     return;
   }
   if (node->kind == ND_IF) {
-    gen(node->lhs);
+    gen(node->cond);
     printf("  pop rax\n"); // スタックトップに結果が入っているはず
     printf("  cmp rax, 0\n");
     char buf[24];
-    snprintf(buf, 24, "%d", if_index++);
-    LOGGER("buf: %s", buf);
+    snprintf(buf, 24, "%d", label_index++);
     if (node->els) {
       printf("  je .Lelse%s\n", buf);
     } else {
       printf("  je .Lend%s\n", buf);
     }
-    gen(node->rhs);
+    gen(node->stmt);
     if (node->els) {
       printf("  .Lelse%s:\n", buf);
       gen(node->els);
     }
     printf(".Lend%s:\n", buf);
     return;
+  }
+  if (node->kind == ND_WHILE) {
+    char buf[24];
+    snprintf(buf, 24, "%d", label_index++);
+    printf(".Lbegin%s:\n", buf);
+    gen(node->cond);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lend%s\n", buf);
+    gen(node->stmt);
+    printf("  jmp .Lbegin%s\n", buf);
+    printf(".Lend%s:\n", buf);
+    return;
+  }
+  if (node->kind == ND_FOR) {
+    char buf[24];
+    snprintf(buf, 24, "%d", label_index++);
+    if (node->init) {
+      gen(node->init);
+    }
+    printf(".Lbegin%s:\n", buf);
+    if (node->cond) {
+      gen(node->cond);
+    }
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lend%s\n", buf);
+    gen(node->stmt);
+    if (node->inc) {
+      gen(node->inc);
+    }
+    printf("  jmp .Lbegin%s\n", buf);
+    printf(".Lend%s:\n", buf);
   }
   // 終端記号
   switch (node->kind) {
@@ -60,9 +92,12 @@ void gen(Node *node) {
     printf("  push %d\n", node->val);
     return;
   }
-
-  gen(node->lhs);
-  gen(node->rhs);
+  if (node->lhs) {
+    gen(node->lhs);
+  }
+  if (node->rhs) {
+    gen(node->rhs);
+  }
 
   printf("  pop rdi\n");
   printf("  pop rax\n");

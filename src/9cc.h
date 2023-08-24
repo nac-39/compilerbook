@@ -30,6 +30,8 @@ typedef enum {
   TK_RETURN,   // return
   TK_IF,       // if
   TK_ELSE,     // else
+  TK_WHILE,    // while
+  TK_FOR,      // for
 } TokenKind;
 
 typedef struct Token Token;
@@ -56,9 +58,11 @@ typedef enum {
   ND_NUM,    // 整数
   ND_ASSIGN, // =
   ND_LVAR,   // ローカル変数
-  ND_IF,     // if
   ND_RETURN, // return
+  ND_IF,     // if
   ND_ELSE,   // else
+  ND_WHILE,  // while
+  ND_FOR,    // for
 } NodeKind;
 
 typedef struct LVar LVar;
@@ -82,7 +86,11 @@ struct Node {
   NodeKind kind; // ノードの方
   Node *lhs;     // 左辺
   Node *rhs;     // 右辺
-  Node *els;    // else節にのみ使う
+  Node *els;     // else節にのみ使う
+  Node *cond;    // if, while, forなどの条件式
+  Node *stmt;    // if, while, forなどの文
+  Node *init;    // forの初期化
+  Node *inc;     // forのインクリメント
   int val;       // kindがND_NUMの場合のみ使う
   int offset; // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す。
 };
@@ -128,5 +136,5 @@ extern FILE *log_file;
 // ローカル変数
 extern LVar *locals;
 
-// if文のインデックス
-extern int if_index;
+// ラベルのインデックス
+extern int label_index;
