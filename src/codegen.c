@@ -72,6 +72,14 @@ void gen(Node *node) {
     printf("  jmp .Lbegin%s\n", buf);
     printf(".Lend%s:\n", buf);
   }
+  if (node->kind == ND_BLOCK) {
+    Node *stmt = node->stmts;
+    while (stmt) {
+      gen(stmt);
+      printf("  pop rax\n");
+      stmt = stmt->next;
+    }
+  }
   // 終端記号
   switch (node->kind) {
   case ND_LVAR:

@@ -42,9 +42,9 @@ char *get_token_name(TokenKind kind) {
 }
 
 char *get_node_name(NodeKind kind) {
-  char *node_names[16] = {"ND_ADD", "ND_SUB",    "ND_MUL",   "ND_DIV",
+  char *node_names[17] = {"ND_ADD", "ND_SUB",    "ND_MUL",   "ND_DIV",
                           "ND_EQ",  "ND_NE",     "ND_LT",    "ND_LE",
                           "ND_NUM", "ND_ASSIGN", "ND_LVAR",  "ND_RETURN",
-                          "ND_IF",  "ND_ELSE",   "ND_WHILE", "ND_FOR"};
+                          "ND_IF",  "ND_ELSE",   "ND_WHILE", "ND_FOR", "ND_BLOCK"};
   return node_names[kind];
 }

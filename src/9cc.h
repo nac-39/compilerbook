@@ -63,6 +63,7 @@ typedef enum {
   ND_ELSE,   // else
   ND_WHILE,  // while
   ND_FOR,    // for
+  ND_BLOCK,  // block
 } NodeKind;
 
 typedef struct LVar LVar;
@@ -86,12 +87,18 @@ struct Node {
   NodeKind kind; // ノードの方
   Node *lhs;     // 左辺
   Node *rhs;     // 右辺
-  Node *els;     // else節にのみ使う
-  Node *cond;    // if, while, forなどの条件式
-  Node *stmt;    // if, while, forなどの文
-  Node *init;    // forの初期化
-  Node *inc;     // forのインクリメント
-  int val;       // kindがND_NUMの場合のみ使う
+
+  Node *els; // else節にのみ使う
+
+  Node *cond; // if, while, forなどの条件式
+  Node *stmt; // if, while, forなどの文
+  Node *init; // forの初期化
+  Node *inc;  // forのインクリメント
+
+  Node *stmts; // ND_BLOCKがstmtの単方向リストを持つのに使う
+  Node *next;  // 単方向リストで次のstmtを指す
+
+  int val;    // kindがND_NUMの場合のみ使う
   int offset; // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す。
 };
 

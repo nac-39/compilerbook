@@ -158,24 +158,21 @@ Token *tokenize() {
     // 記号(二個進める)
     if (startswith(p, "==") || startswith(p, "!=") || startswith(p, "<=") ||
         startswith(p, ">=")) {
-      LOGGER("tokenizing reserved2(%s): ", p);
       cur = new_token(TK_RESERVED, cur, p, 2);
       p += 2;
       continue;
     }
 
     // 記号(一つ進める)
-    if (strchr("+-*/()<>;=", *p)) {
+    if (strchr("+-*/()<>;={}", *p)) {
       // strchr:
       // 検索対象が見つかればその場所のアドレスを、見つからなければNULLを返す
-      LOGGER("tokenizing reserved(%s): ", p);
       cur = new_token(TK_RESERVED, cur, p, 1);
       p++;
       continue;
     }
 
     if ('a' <= *p && *p <= 'z') {
-      LOGGER("tokenizing ident(%s): ", p);
       char *old_p = p;
       int char_len = 0;
       while (is_alnum(*p)) {
@@ -188,7 +185,6 @@ Token *tokenize() {
     }
 
     if (isdigit(*p)) {
-      LOGGER("tokenizing number(%s): ", p);
       cur = new_token(TK_NUM, cur, p, 0);
       char *q = p;
       cur->val = strtol(p, &p, 10); // str to long
@@ -237,6 +233,7 @@ Node *new_num(int val) {
 //            | "if" "(" expr ")" stmt ("else" stmt)?
 //            | "while" "(" expr ")" stmt
 //            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+//            | "{" stmt* "}"
 // expr       = assign
 // assign     = equality ("=" assign)?
 // equality   = relational ("==" relational | "!=" relational)*
@@ -262,6 +259,7 @@ void program() {
 //            | "if" "(" expr ")" stmt ("else" stmt)?
 //            | "while" "(" expr ")" stmt
 //            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+//            | "{" stmt* "}"
 Node *stmt() {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
   LOGGER("Now tokenizing... %s", get_token_name(token->kind));
@@ -299,6 +297,18 @@ Node *stmt() {
       expect(")");
     }
     node->stmt = stmt();
+  } else if (consume("{")) { // ブロックを読み込む
+    node = new_node(ND_BLOCK);
+    Node *last_stmt = NULL;
+    while (!consume("}")) {
+      Node *tmp_stmt = stmt();
+      if (node->stmts) {
+        last_stmt->next = tmp_stmt;
+      } else {
+        node->stmts = tmp_stmt;
+      }
+      last_stmt = tmp_stmt;
+    }
   } else {
     node = expr();
     expect(";");
