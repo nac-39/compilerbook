@@ -241,7 +241,7 @@ Node *new_num(int val) {
 // add        = mul ("+" mul | "-" mul)*
 // mul        = unary ("*" unary | "/" unary)*
 // unary      = ("+" | "-")? primary
-// primary    = num | ident | "(" expr ")"
+// primary    = num | ident | "(" expr ")"| ident ("(" ")")?
 
 // program    = stmt*
 void program() {
@@ -417,20 +417,28 @@ Node *primary() {
   Token *tok = consume_ident();
   if (tok) {
     Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_LVAR;
-    LVar *lvar = find_lvar(tok);
-    if (lvar) {
-      node->offset = lvar->offset;
+    // もし一つ後のトークンが(なら、identは関数名
+    if (consume("(")) {
+      node->kind = ND_FUNC;
+      node->fname = tok->str;
+      node->flen = tok->len;
+      expect(")");
     } else {
-      lvar = calloc(1, sizeof(LVar));
-      lvar->next = locals;
-      lvar->name = tok->str;
-      lvar->len = tok->len;
-      lvar->offset = locals->offset + 8;
-      node->offset = lvar->offset;
-      locals = lvar;
+      // そうでなければローカル変数
+      node->kind = ND_LVAR;
+      LVar *lvar = find_lvar(tok);
+      if (lvar) {
+        node->offset = lvar->offset;
+      } else {
+        lvar = calloc(1, sizeof(LVar));
+        lvar->next = locals;
+        lvar->name = tok->str;
+        lvar->len = tok->len;
+        lvar->offset = locals->offset + 8;
+        node->offset = lvar->offset;
+        locals = lvar;
+      }
     }
-
     return node;
   }
   // そうでなければ数値のはず;

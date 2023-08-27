@@ -5,7 +5,7 @@ assert() {
   input="$2"
 
   ./bin/9cc "$input" > ./assembly/tmp.s
-  cc -o ./bin/tmp ./assembly/tmp.s
+  cc -o ./bin/tmp ./assembly/tmp.s ./src/test.o
   ./bin/tmp
   actual="$?"
 
@@ -92,4 +92,7 @@ assert 139 'for(i=1;;i = i + 1) a = i + 1; return a;' # スタックオーバー
 assert 3 '{ a = 2; b = 1; return a + b; }'
 assert 20 'i=0;a=0;while(i<10){i=i+1; a = i * 2;} return a;'
 assert 10 'i=0;while(1){if(i == 10){return 10;} i = i+1;} return 1000;'
+
+# 関数を呼び出せるようにする
+assert 10 'test(); return 10;'
 echo OK

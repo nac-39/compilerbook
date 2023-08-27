@@ -64,6 +64,7 @@ typedef enum {
   ND_WHILE,  // while
   ND_FOR,    // for
   ND_BLOCK,  // block
+  ND_FUNC,   // function
 } NodeKind;
 
 typedef struct LVar LVar;
@@ -99,7 +100,9 @@ struct Node {
   Node *next;  // 単方向リストで次のstmtを指す
 
   int val;    // kindがND_NUMの場合のみ使う
-  int offset; // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す。
+  int offset; // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す
+  char *fname; // 関数の関数名を表す。
+  int flen;    // 関数名の長さを表す
 };
 
 void error(char *fmt, ...);

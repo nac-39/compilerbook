@@ -12,15 +12,15 @@ void gen_lval(Node *node) {
 void gen(Node *node) {
   LOGGER("%s:l%d  %s()", __FILE__, __LINE__, __func__);
   LOGGER("> %s", get_node_name(node->kind));
-  if (node->kind == ND_RETURN) {
+  switch (node->kind) {
+  case ND_RETURN:
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
     printf("  ret\n");
     return;
-  }
-  if (node->kind == ND_IF) {
+  case ND_IF:
     gen(node->cond);
     printf("  pop rax\n"); // スタックトップに結果が入っているはず
     printf("  cmp rax, 0\n");
@@ -38,9 +38,7 @@ void gen(Node *node) {
     }
     printf(".Lend%s:\n", buf);
     return;
-  }
-  if (node->kind == ND_WHILE) {
-    char buf[24];
+  case ND_WHILE:
     snprintf(buf, 24, "%d", label_index++);
     printf(".Lbegin%s:\n", buf);
     gen(node->cond);
@@ -51,9 +49,7 @@ void gen(Node *node) {
     printf("  jmp .Lbegin%s\n", buf);
     printf(".Lend%s:\n", buf);
     return;
-  }
-  if (node->kind == ND_FOR) {
-    char buf[24];
+  case ND_FOR:
     snprintf(buf, 24, "%d", label_index++);
     if (node->init) {
       gen(node->init);
@@ -71,17 +67,20 @@ void gen(Node *node) {
     }
     printf("  jmp .Lbegin%s\n", buf);
     printf(".Lend%s:\n", buf);
-  }
-  if (node->kind == ND_BLOCK) {
+  case ND_BLOCK:
     Node *stmt = node->stmts;
     while (stmt) {
       gen(stmt);
       printf("  pop rax\n");
       stmt = stmt->next;
     }
+    return;
+  case ND_FUNC:
+    printf("  call %.*s\n", node->flen, node->fname);
+    printf("  pop rax\n");
   }
-  // 終端記号
   switch (node->kind) {
+  // 終端記号
   case ND_LVAR:
     gen_lval(node);
     printf("  pop rax\n");
