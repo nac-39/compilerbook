@@ -420,8 +420,8 @@ Node *primary() {
     // もし一つ後のトークンが(なら、identは関数名
     if (consume("(")) {
       node->kind = ND_FUNC;
-      node->fname = tok->str;
-      node->flen = tok->len;
+      node->fname = calloc(1, sizeof(char));
+      strncpy(node->fname, tok->str, tok->len);
       expect(")");
     } else {
       // そうでなければローカル変数

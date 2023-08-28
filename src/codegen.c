@@ -76,7 +76,7 @@ void gen(Node *node) {
     }
     return;
   case ND_FUNC:
-    printf("  call %.*s\n", node->flen, node->fname);
+    printf("  call %s\n", node->fname);
     printf("  pop rax\n");
   }
   switch (node->kind) {

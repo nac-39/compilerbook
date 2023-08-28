@@ -95,4 +95,6 @@ assert 10 'i=0;while(1){if(i == 10){return 10;} i = i+1;} return 1000;'
 
 # 関数を呼び出せるようにする
 assert 10 'test(); return 10;'
+assert 10 'test(); test(); test(); return 10;'
+assert 10 'for(i=0;i<10;i=i+1){test();}return 10;'
 echo OK

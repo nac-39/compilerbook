@@ -101,8 +101,9 @@ struct Node {
 
   int val;    // kindがND_NUMの場合のみ使う
   int offset; // kindがND_LVAR(ローカル変数)の場合のみ使う。ローカル変数のベースポインタからの　オフセットを表す
-  char *fname; // 関数の関数名を表す。
-  int flen;    // 関数名の長さを表す
+
+  char *fname;   // 関数の関数名を表す。
+  void *argv[6]; // 関数の引数へのポインタを保持する。
 };
 
 void error(char *fmt, ...);
